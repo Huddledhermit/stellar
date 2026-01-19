@@ -1,0 +1,21 @@
+[package]
+name = "stellar"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+smithay-drm-extras = "0.1.0"
+tracing = "0.1.44"
+tracing-subscriber = "0.3.22"
+xcursor = "0.3.10"
+
+
+
+[dependencies.smithay]
+git = "https://github.com/Smithay/smithay.git"
+default-features = false
+features = [
+"backend_drm",
+"backend_winit",
+"wayland_frontend"
+]
