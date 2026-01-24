@@ -1,5 +1,7 @@
+mod state;
+use smithay::reexports::{calloop::EventLoop, wayland_server::Display};
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone)]
 enum backend {
     winit,
     tty,
@@ -7,5 +9,5 @@ enum backend {
 
 fn main() {
 
-    match backend{}
+    // match backend{}
 }
