@@ -1,3 +1,4 @@
+mod handlers;
 mod state;
 use smithay::reexports::{calloop::EventLoop, wayland_server::Display};
 
