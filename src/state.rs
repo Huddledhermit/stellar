@@ -4,12 +4,11 @@ use smithay::{
     desktop::{PopupManager, Space, Window, WindowSurfaceType},
     input::{Seat, SeatHandler, SeatState},
     reexports::{
-        calloop::{EventLoop, Interest, LoopSignal, Mode, PostAction, generic::Generic},
-        wayland_server::{
+        calloop::{EventLoop, Interest, LoopSignal, Mode, PostAction, generic::Generic}, rustix::net::listen, wayland_server::{
             Display, DisplayHandle,
             backend::{ClientData, ClientId, DisconnectReason},
             protocol::wl_surface::WlSurface,
-        },
+        }
     },
     utils::{Logical, Point},
     wayland::{
@@ -65,7 +64,14 @@ impl stellar {
         }
     }
 
-    fn create_wl_listener(display: Display<State>, eventloop: &mut EventLoop<Self>) -> OsString {}
+    fn create_wl_listener(display: Display<State>, eventloop: &mut EventLoop<Self>) -> OsString {
+
+        let  socket = ListeningSocketSource::new_auto().unwrap();
+
+        let socket_name = socket.socket_name().to_os_string();
+        let loop_handle = eventloop.handle();
+        loop_handle.insert_source(socket, callback)
+    }
 }
 
 #[derive(Default)]
