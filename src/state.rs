@@ -55,6 +55,14 @@ impl stellar {
 
         seat.add_keyboard(Default::default(), 200, 25).unwrap();
         seat.add_pointer();
+        let space = Space::default();
+        let socket = Self::
+
+        Self{
+            start_time,
+
+
+        }
     }
 
     fn create_wl_listener(display: Display<State>, eventloop: &mut EventLoop<Self>) -> OsString {}
