@@ -4,11 +4,13 @@ use smithay::{
     desktop::{PopupManager, Space, Window, WindowSurfaceType},
     input::{Seat, SeatHandler, SeatState},
     reexports::{
-        calloop::{EventLoop, Interest, LoopSignal, Mode, PostAction, generic::Generic}, rustix::net::listen, wayland_server::{
+        calloop::{EventLoop, Interest, LoopSignal, Mode, PostAction, generic::Generic},
+        rustix::net::listen,
+        wayland_server::{
             Display, DisplayHandle,
             backend::{ClientData, ClientId, DisconnectReason},
             protocol::wl_surface::WlSurface,
-        }
+        },
     },
     utils::{Logical, Point},
     wayland::{
@@ -55,22 +57,33 @@ impl stellar {
         seat.add_keyboard(Default::default(), 200, 25).unwrap();
         seat.add_pointer();
         let space = Space::default();
-        let socket = Self::
+        let socket = Self::create_wl_listener(display, eventloop);
 
-        Self{
+        Self {
             start_time,
-
-
+            display_handle: display,
         }
     }
 
-    fn create_wl_listener(display: Display<State>, eventloop: &mut EventLoop<Self>) -> OsString {
-
-        let  socket = ListeningSocketSource::new_auto().unwrap();
+    fn create_wl_listener(display: Display<stellar>, eventloop: &mut EventLoop<Self>) -> OsString {
+        let socket = ListeningSocketSource::new_auto().unwrap();
 
         let socket_name = socket.socket_name().to_os_string();
         let loop_handle = eventloop.handle();
-        loop_handle.insert_source(socket, callback)
+        loop_handle.insert_source(socket, move |client_stream, _, state| {
+            state
+                .display_handle
+                .insert_client(stream, Arc::new(ClientState::default()))
+                .unwrap();
+        })
+        .expect("failed to initialize")
+        loop_handle.insert_source(Generic::new(display, Interest::READ,Mode::Level),
+        | display, _, state|{ 
+            unsafe{
+                display.get_mut().dispatch
+            }
+        }
+        )
     }
 }
 
