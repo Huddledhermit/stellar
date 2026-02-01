@@ -47,21 +47,37 @@ impl stellar {
         let dh = display.handle();
         let compositor_state = CompositorState::new::<Self>(&dh);
         let xdg_state = XdgShellState::new::<Self>(&dh);
-        let output_manager_state = OutputManagerState::new_with_xdg_output::<Self>(&dh);
+        let output_state = OutputManagerState::new_with_xdg_output::<Self>(&dh);
         let shm_state = ShmState::new::<Self>(&dh, vec![]);
-        let popups = PopupManager::default();
+        let popup_manager = PopupManager::default();
 
         let mut seat_state = SeatState::new();
         let mut seat: Seat<Self> = seat_state.new_wl_seat(&dh, "winit");
+
+        let data_device_state = DataDeviceState::new::<Self>(&dh);
 
         seat.add_keyboard(Default::default(), 200, 25).unwrap();
         seat.add_pointer();
         let space = Space::default();
         let socket = Self::create_wl_listener(display, eventloop);
+        let loop_signal = eventloop.get_signal();
 
         Self {
             start_time,
+            socket,
+            space,
+            seat,
+            seat_state,
             display_handle: dh,
+            compositor_state,
+            output_state,
+            popup_manager,
+            shm_state,
+            xdg_state,
+            output_state,
+            loop_signal,
+            data_device_state
+
         }
     }
 
