@@ -41,12 +41,12 @@ pub struct stellar {
 }
 
 impl stellar {
-    pub fn new(eventloop: &mut EventLoop<Self>, display: Display<Self>) -> Self {
+    pub fn new(eventloop: &mut EventLoop<Self>, display: Display<self>) -> Self {
         let start_time = std::time::Instant::now();
 
-        let display = display.handle();
-        let compositor_state = CompositorState::new::<Self>(&display);
-        let xdg_state = XdgShellState::new::<Self>(&display);
+        let dh = display.handle();
+        let compositor_state = CompositorState::new::<Self>(&dh);
+        let xdg_state = XdgShellState::new::<Self>(&dh);
         let output_manager_state = OutputManagerState::new_with_xdg_output::<Self>(&dh);
         let shm_state = ShmState::new::<Self>(&dh, vec![]);
         let popups = PopupManager::default();
@@ -61,7 +61,7 @@ impl stellar {
 
         Self {
             start_time,
-            display_handle: display,
+            display_handle: dh,
         }
     }
 
@@ -70,20 +70,26 @@ impl stellar {
 
         let socket_name = socket.socket_name().to_os_string();
         let loop_handle = eventloop.handle();
-        loop_handle.insert_source(socket, move |client_stream, _, state| {
-            state
-                .display_handle
-                .insert_client(stream, Arc::new(ClientState::default()))
-                .unwrap();
-        })
-        .expect("failed to initialize")
-        loop_handle.insert_source(Generic::new(display, Interest::READ,Mode::Level),
-        | display, _, state|{ 
-            unsafe{
-                display.get_mut().dispatch
-            }
-        }
-        )
+        loop_handle
+            .insert_source(socket, move |client_stream, _, state| {
+                state
+                    .display_handle
+                    .insert_client(client_stream, Arc::new(ClientState::default()))
+                    .unwrap();
+            })
+            .expect("failed to initialize");
+        loop_handle
+            .insert_source(
+                Generic::new(display, Interest::READ, Mode::Level),
+                |display, _, state| {
+                    unsafe {
+                        display.get_mut().dispatch_clients(state).unwrap();
+                    }
+                    Ok(PostAction::Continue)
+                },
+            )
+            .unwrap();
+        socket_name
     }
 }
 
