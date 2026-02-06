@@ -58,6 +58,14 @@ impl WaylandDndGrabHandler for stellar {
             serial: Serial,
             type_: GrabType,
         ) {
+        match type_{
+            GrabType::pointer =>{
+
+                let ptr = seat.get_pointer().unwrap()
+            }
+
+        }
         
     }
 }
+
